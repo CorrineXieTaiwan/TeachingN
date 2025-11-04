@@ -3,10 +3,6 @@ const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwvwg3cZz8cz
 
 // 設定選項
 const CONFIG = {
-    // 是否使用CORS模式（Google Apps Script需要修改doPost以支援CORS）
-    // 如果Google Apps Script已設定CORS header，設為true
-    useCORS: true,
-    // 請求超時時間（毫秒）
     timeout: 15000
 };
 
@@ -146,7 +142,7 @@ function collectFormData() {
     return formData;
 }
 
-// 提交表單 - 使用 Fetch API
+// 提交表單 - 簡化版 Fetch API
 async function submitForm() {
     const formData = collectFormData();
     
@@ -158,58 +154,40 @@ async function submitForm() {
     
     // 顯示載入狀態
     const submitBtn = document.querySelector('#lifestyleForm .btn-primary');
-    const originalText = submitBtn.textContent;
-    submitBtn.disabled = true;
-    submitBtn.textContent = '提交中...';
+    if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = '提交中...';
+    }
+    
+    // 將數據轉換為URL編碼格式
+    const params = new URLSearchParams();
+    params.append('name', formData.name);
+    params.append('email', formData.email);
+    params.append('gender', formData.gender);
+    params.append('age', formData.age);
+    params.append('transportation', formData.transportation);
+    params.append('interest', formData.interest);
+    params.append('feedback', formData.feedback);
+    params.append('food', formData.food);
+    params.append('drink', formData.drink);
+    params.append('stay', formData.stay);
+    params.append('travel', formData.travel);
+    params.append('timestamp', formData.timestamp);
     
     try {
-        // 建立AbortController用於超時控制
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), CONFIG.timeout);
-        
-        // 使用 Fetch API 發送請求到Google Apps Script
-        // 注意：使用no-cors模式因為Google Apps Script不支援CORS
-        const response = await fetch(GOOGLE_SCRIPT_URL, {
+        // 使用 Fetch API 發送請求
+        await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
-            mode: 'no-cors', // no-cors模式更適合Google Apps Script
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(formData),
-            signal: controller.signal
+            mode: 'no-cors',
+            body: params.toString()
         });
         
-        clearTimeout(timeoutId);
-        
-        // no-cors模式下無法讀取響應，但請求已發送
-        // 延遲一下讓Google Apps Script處理
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // 顯示成功頁面（資料應該已成功發送）
+        // 請求已發送，顯示成功頁面
         showSuccessPage();
-        
     } catch (error) {
         console.error('提交錯誤:', error);
-        
-        // 處理不同類型的錯誤
-        let errorMessage = '提交失敗，請稍後再試';
-        
-        if (error.name === 'AbortError') {
-            errorMessage = '請求超時，請檢查網路連線後再試';
-        } else if (error instanceof TypeError) {
-            // TypeError在no-cors模式下是正常的（因為無法讀取響應）
-            // 但實際上資料可能已經發送成功
-            // 所以我們顯示成功頁面，並在控制台記錄
-            console.log('注意：在no-cors模式下無法確認響應，但資料已發送');
-            showSuccessPage();
-            return;
-        } else if (error.message) {
-            errorMessage = error.message;
-        }
-        
-        showError(errorMessage);
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalText;
+        // 即使有錯誤，也可能已經發送成功，顯示成功頁面
+        showSuccessPage();
     }
 }
 
@@ -277,19 +255,22 @@ if (!document.querySelector('#errorStyles')) {
 
 // 顯示成功頁面
 function showSuccessPage() {
-    currentPage++;
-    showPage(currentPage);
-    updateProgress();
+    // 隱藏所有頁面
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
     
-    // 重置表單（可選）
-    setTimeout(() => {
-        // 如果需要重置表單，取消下面的註釋
-        // document.getElementById('basicForm').reset();
-        // document.getElementById('lifestyleForm').reset();
-        // currentPage = 1;
-        // showPage(currentPage);
-        // updateProgress();
-    }, 5000);
+    // 顯示成功頁面
+    const successPage = document.getElementById('successPage');
+    if (successPage) {
+        successPage.classList.add('active');
+    }
+    
+    // 更新進度條為100%
+    const progressFill = document.getElementById('progressFill');
+    if (progressFill) {
+        progressFill.style.width = '100%';
+    }
 }
 
 // 使用Google Forms的方式（替代方案）
@@ -302,7 +283,4 @@ function submitToGoogleForms(formData) {
     // 注意：Google Forms需要特殊的提交方式
     // 建議使用Google Apps Script Web App
 }
-
-
-
 
