@@ -5,64 +5,50 @@
 }
 
 body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    font-family: 'Segoe UI', 'Microsoft JhengHei', Arial, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     min-height: 100vh;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 20px;
-    position: relative;
-    overflow-x: hidden;
-}
-
-body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: 
-        radial-gradient(circle at 20% 50%, rgba(255, 182, 193, 0.3) 0%, transparent 50%),
-        radial-gradient(circle at 80% 80%, rgba(255, 20, 147, 0.2) 0%, transparent 50%),
-        radial-gradient(circle at 40% 20%, rgba(255, 105, 180, 0.2) 0%, transparent 50%);
-    pointer-events: none;
 }
 
 .container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 800px;
     width: 100%;
-    max-width: 700px;
+    padding: 40px;
     position: relative;
-    z-index: 1;
+    overflow: hidden;
 }
 
 .progress-bar {
     width: 100%;
     height: 6px;
-    background: rgba(255, 255, 255, 0.2);
+    background: #e0e0e0;
     border-radius: 10px;
     margin-bottom: 30px;
     overflow: hidden;
-    backdrop-filter: blur(10px);
 }
 
 .progress-fill {
     height: 100%;
-    background: linear-gradient(90deg, #ff6b9d, #ff8fab, #ffb3d9);
+    background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    width: 0%;
+    transition: width 0.3s ease;
     border-radius: 10px;
-    transition: width 0.5s ease;
-    width: 50%;
-    box-shadow: 0 0 20px rgba(255, 107, 157, 0.5);
 }
 
 .page {
     display: none;
-    animation: fadeIn 0.5s ease;
 }
 
 .page.active {
     display: block;
+    animation: fadeIn 0.5s ease;
 }
 
 @keyframes fadeIn {
@@ -76,24 +62,19 @@ body::before {
     }
 }
 
-.form-card {
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px);
-    border-radius: 20px;
-    padding: 40px;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.title {
-    font-size: 2rem;
-    font-weight: 700;
-    background: linear-gradient(135deg, #ff6b9d, #ff8fab, #ffb3d9);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+h1 {
+    color: #333;
     margin-bottom: 30px;
     text-align: center;
+    font-size: 2em;
+}
+
+h2 {
+    color: #555;
+    margin-bottom: 20px;
+    font-size: 1.3em;
+    border-bottom: 2px solid #667eea;
+    padding-bottom: 10px;
 }
 
 .form-group {
@@ -102,161 +83,176 @@ body::before {
 
 .form-group label {
     display: block;
-    font-weight: 600;
-    color: #333;
     margin-bottom: 8px;
-    font-size: 0.95rem;
+    color: #555;
+    font-weight: 600;
+    font-size: 0.95em;
 }
 
 .required {
-    color: #ff6b9d;
+    color: #e74c3c;
+    margin-left: 3px;
 }
 
 input[type="text"],
 input[type="email"],
+input[type="tel"],
 input[type="number"],
-select,
-textarea {
+select {
     width: 100%;
-    padding: 12px 16px;
+    padding: 12px 15px;
     border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 1rem;
+    border-radius: 8px;
+    font-size: 1em;
     transition: all 0.3s ease;
-    background: white;
     font-family: inherit;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="tel"]:focus,
+input[type="number"]:focus,
+select:focus {
     outline: none;
-    border-color: #ff6b9d;
-    box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
 
-textarea {
-    resize: vertical;
-    min-height: 100px;
+.form-section {
+    margin-bottom: 40px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 12px;
 }
 
-.radio-group,
 .checkbox-group {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 15px;
-    margin-top: 10px;
+    margin-top: 15px;
 }
 
-.radio-label,
 .checkbox-label {
     display: flex;
     align-items: center;
     cursor: pointer;
-    padding: 12px 20px;
-    background: rgba(255, 107, 157, 0.05);
-    border: 2px solid rgba(255, 107, 157, 0.2);
-    border-radius: 10px;
+    padding: 12px;
+    background: white;
+    border-radius: 8px;
     transition: all 0.3s ease;
-    font-weight: 500;
+    border: 2px solid transparent;
+    position: relative;
 }
 
-.radio-label:hover,
 .checkbox-label:hover {
-    background: rgba(255, 107, 157, 0.1);
-    border-color: #ff6b9d;
+    background: #f0f0f0;
+    border-color: #667eea;
     transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-.radio-label input[type="radio"],
 .checkbox-label input[type="checkbox"] {
+    margin-right: 12px;
     width: 20px;
     height: 20px;
-    margin-right: 10px;
     cursor: pointer;
-    accent-color: #ff6b9d;
+    appearance: none;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
 }
 
-.radio-label input[type="radio"]:checked + span,
-.checkbox-label input[type="checkbox"]:checked + span {
-    color: #ff6b9d;
-    font-weight: 600;
+.checkbox-label input[type="checkbox"]:checked {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-color: #667eea;
 }
 
-.radio-label:has(input[type="radio"]:checked),
-.checkbox-label:has(input[type="checkbox"]:checked) {
-    background: rgba(255, 107, 157, 0.15);
-    border-color: #ff6b9d;
-    box-shadow: 0 0 0 3px rgba(255, 107, 157, 0.1);
+.checkbox-label input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.checkbox-label span {
+    flex: 1;
+    color: #555;
+    font-size: 0.95em;
 }
 
 .btn {
-    padding: 14px 32px;
+    padding: 14px 30px;
     border: none;
-    border-radius: 10px;
-    font-size: 1rem;
+    border-radius: 8px;
+    font-size: 1em;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.3s ease;
     font-family: inherit;
-    width: 100%;
-    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
-.btn-primary {
-    background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+.btn-next,
+.btn-submit {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
-    box-shadow: 0 4px 15px rgba(255, 107, 157, 0.4);
+    width: 100%;
+    margin-top: 20px;
 }
 
-.btn-primary:hover {
+.btn-next:hover,
+.btn-submit:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(255, 107, 157, 0.6);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
-.btn-primary:active {
-    transform: translateY(0);
+.btn-prev {
+    background: #6c757d;
+    color: white;
+    flex: 1;
+    margin-right: 10px;
 }
 
-.btn-secondary {
-    background: rgba(255, 255, 255, 0.9);
-    color: #ff6b9d;
-    border: 2px solid #ff6b9d;
-}
-
-.btn-secondary:hover {
-    background: rgba(255, 107, 157, 0.05);
+.btn-prev:hover {
+    background: #5a6268;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
 .button-group {
     display: flex;
-    gap: 15px;
-    margin-top: 20px;
+    gap: 10px;
+    margin-top: 30px;
 }
 
-.button-group .btn {
-    flex: 1;
-    margin-top: 0;
+.btn-submit {
+    flex: 2;
+    margin: 0;
 }
 
-.success-card {
+.success-message {
     text-align: center;
-    padding: 60px 40px;
+    padding: 40px 20px;
 }
 
 .success-icon {
     width: 80px;
     height: 80px;
-    margin: 0 auto 20px;
-    background: linear-gradient(135deg, #ff6b9d, #ff8fab);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 3rem;
+    margin: 0 auto 30px;
+    font-size: 40px;
     color: white;
-    box-shadow: 0 10px 30px rgba(255, 107, 157, 0.4);
     animation: scaleIn 0.5s ease;
 }
 
@@ -269,70 +265,49 @@ textarea {
     }
 }
 
-.success-card h2 {
-    font-size: 2rem;
-    color: #333;
+.success-message h1 {
+    color: #28a745;
     margin-bottom: 15px;
-    background: linear-gradient(135deg, #ff6b9d, #ff8fab);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
-.success-card p {
+.success-message p {
     color: #666;
-    font-size: 1.1rem;
+    font-size: 1.1em;
+    margin-bottom: 30px;
+}
+
+.btn-reset {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 12px 40px;
+}
+
+.btn-reset:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
 }
 
 /* 響應式設計 */
 @media (max-width: 768px) {
-    .form-card {
-        padding: 30px 20px;
+    .container {
+        padding: 25px;
     }
-
-    .title {
-        font-size: 1.5rem;
+    
+    h1 {
+        font-size: 1.5em;
     }
-
-    .radio-group,
+    
     .checkbox-group {
-        flex-direction: column;
-        gap: 10px;
+        grid-template-columns: 1fr;
     }
-
-    .radio-label,
-    .checkbox-label {
-        width: 100%;
-    }
-
+    
     .button-group {
         flex-direction: column;
     }
-}
-
-/* 載入動畫 */
-.loading {
-    opacity: 0.6;
-    pointer-events: none;
-}
-
-.loading::after {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 40px;
-    height: 40px;
-    margin: -20px 0 0 -20px;
-    border: 4px solid rgba(255, 107, 157, 0.2);
-    border-top-color: #ff6b9d;
-    border-radius: 50%;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    to {
-        transform: rotate(360deg);
+    
+    .btn-prev {
+        margin-right: 0;
+        margin-bottom: 10px;
     }
 }
 

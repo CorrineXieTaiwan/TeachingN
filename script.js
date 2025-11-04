@@ -1,286 +1,174 @@
-// Google Apps Script Web App URL - 請替換成您的實際URL
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwvwg3cZz8cz_DWUAU9isTCqrLn7W4D1kHBGD7bmej8bCnb0PbWRfc5u2mM6woUEeY/exec';
-
-// 設定選項
-const CONFIG = {
-    timeout: 15000
-};
-
 let currentPage = 1;
 const totalPages = 2;
 
-// 初始化
-document.addEventListener('DOMContentLoaded', function() {
-    updateProgress();
-    
-    // 表單提交處理
-    document.getElementById('lifestyleForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        submitForm();
-    });
-    
-    // 表單驗證
-    document.getElementById('basicForm').addEventListener('input', validateForm);
-    document.getElementById('lifestyleForm').addEventListener('change', validateLifestyleForm);
-});
+// ⚠️ 重要：請將下面的網址替換成您在 Google Apps Script 部署後取得的網頁應用程式網址
+// 取得方式：Google Apps Script → 部署 → 新增部署作業 → 選擇網頁應用程式 → 複製網址
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn33WXDvtEkkcurU2QeQ_VsKb0xcjICGIYDOtPjnfcc_86FuPuUWWyTLNePAEYK_zq/exec';
 
-// 更新進度條
+// 初始化進度條
 function updateProgress() {
-    const progressFill = document.getElementById('progressFill');
     const progress = (currentPage / totalPages) * 100;
-    progressFill.style.width = progress + '%';
+    document.getElementById('progressFill').style.width = progress + '%';
 }
 
-// 下一頁
+// 切換到下一頁
 function nextPage() {
-    const form = document.getElementById('basicForm');
+    const form = document.getElementById('basicInfoForm');
     
-    // 驗證基本資料表單
+    // 驗證表單
     if (form.checkValidity()) {
         currentPage++;
         showPage(currentPage);
         updateProgress();
     } else {
+        // 顯示瀏覽器的驗證訊息
         form.reportValidity();
     }
 }
 
-// 上一頁
+// 切換到上一頁
 function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        showPage(currentPage);
-        updateProgress();
-    }
+    currentPage--;
+    showPage(currentPage);
+    updateProgress();
 }
 
-// 顯示頁面
+// 顯示指定頁面
 function showPage(pageNumber) {
     // 隱藏所有頁面
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
-    });
+    const pages = document.querySelectorAll('.page');
+    pages.forEach(page => page.classList.remove('active'));
     
-    // 顯示當前頁面
+    // 顯示指定頁面
     document.getElementById(`page${pageNumber}`).classList.add('active');
 }
 
-// 驗證表單
-function validateForm() {
-    const form = document.getElementById('basicForm');
-    const inputs = form.querySelectorAll('input[required], select[required], textarea[required]');
-    let isValid = true;
+// 表單提交處理
+document.getElementById('lifestyleForm').addEventListener('submit', function(e) {
+    e.preventDefault();
     
-    inputs.forEach(input => {
-        if (!input.value.trim()) {
-            isValid = false;
-        }
-    });
-    
-    // 驗證單選按鈕
-    const genderSelected = form.querySelector('input[name="gender"]:checked');
-    if (!genderSelected) {
-        isValid = false;
-    }
-}
-
-// 驗證生活習慣表單
-function validateLifestyleForm() {
-    const form = document.getElementById('lifestyleForm');
-    const checkboxes = form.querySelectorAll('input[type="checkbox"]');
-    const groups = {};
-    
-    // 將複選框分組
-    checkboxes.forEach(checkbox => {
-        const name = checkbox.name;
-        if (!groups[name]) {
-            groups[name] = [];
-        }
-        groups[name].push(checkbox);
-    });
-    
-    // 檢查每個組至少有一個選中
-    let isValid = true;
-    for (const groupName in groups) {
-        const hasChecked = groups[groupName].some(cb => cb.checked);
-        if (!hasChecked) {
-            isValid = false;
-            break;
-        }
-    }
-}
-
-// 收集表單數據
-function collectFormData() {
-    const basicForm = document.getElementById('basicForm');
-    const lifestyleForm = document.getElementById('lifestyleForm');
-    
-    // 收集基本資料
+    // 收集所有表單資料
     const formData = {
-        name: document.getElementById('name').value.trim(),
-        email: document.getElementById('email').value.trim(),
-        gender: document.querySelector('input[name="gender"]:checked')?.value || '',
-        age: document.getElementById('age').value.trim(),
-        transportation: document.getElementById('transportation').value,
-        interest: document.getElementById('interest').value.trim(),
-        feedback: document.getElementById('feedback').value.trim() || ''
+        basicInfo: {},
+        lifestyle: {
+            diet: [],
+            transport: [],
+            interest: []
+        }
     };
     
-    // 收集生活習慣（複選）
-    const food = Array.from(lifestyleForm.querySelectorAll('input[name="food"]:checked')).map(cb => cb.value);
-    const drink = Array.from(lifestyleForm.querySelectorAll('input[name="drink"]:checked')).map(cb => cb.value);
-    const stay = Array.from(lifestyleForm.querySelectorAll('input[name="stay"]:checked')).map(cb => cb.value);
-    const travel = Array.from(lifestyleForm.querySelectorAll('input[name="travel"]:checked')).map(cb => cb.value);
-    
-    // 添加生活習慣數據
-    formData.food = food.join(', ');
-    formData.drink = drink.join(', ');
-    formData.stay = stay.join(', ');
-    formData.travel = travel.join(', ');
-    formData.timestamp = new Date().toLocaleString('zh-TW');
-    
-    return formData;
-}
-
-// 提交表單 - 簡化版 Fetch API
-async function submitForm() {
-    const formData = collectFormData();
-    
-    // 驗證生活習慣表單
-    if (!formData.food || !formData.drink || !formData.stay || !formData.travel) {
-        showError('請至少選擇每個生活習慣選項中的一個項目');
-        return;
+    // 收集基本資料
+    const basicForm = document.getElementById('basicInfoForm');
+    const basicFormData = new FormData(basicForm);
+    for (let [key, value] of basicFormData.entries()) {
+        formData.basicInfo[key] = value;
     }
     
-    // 顯示載入狀態
-    const submitBtn = document.querySelector('#lifestyleForm .btn-primary');
-    if (submitBtn) {
-        submitBtn.disabled = true;
-        submitBtn.textContent = '提交中...';
-    }
-    
-    // 將數據轉換為URL編碼格式
-    const params = new URLSearchParams();
-    params.append('name', formData.name);
-    params.append('email', formData.email);
-    params.append('gender', formData.gender);
-    params.append('age', formData.age);
-    params.append('transportation', formData.transportation);
-    params.append('interest', formData.interest);
-    params.append('feedback', formData.feedback);
-    params.append('food', formData.food);
-    params.append('drink', formData.drink);
-    params.append('stay', formData.stay);
-    params.append('travel', formData.travel);
-    params.append('timestamp', formData.timestamp);
-    
-    try {
-        // 使用 Fetch API 發送請求
-        await fetch(GOOGLE_SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: params.toString()
-        });
-        
-        // 請求已發送，顯示成功頁面
-        showSuccessPage();
-    } catch (error) {
-        console.error('提交錯誤:', error);
-        // 即使有錯誤，也可能已經發送成功，顯示成功頁面
-        showSuccessPage();
-    }
-}
-
-// 顯示錯誤訊息
-function showError(message) {
-    // 建立錯誤提示元素
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    errorDiv.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #ff4444;
-        color: white;
-        padding: 15px 25px;
-        border-radius: 10px;
-        box-shadow: 0 4px 15px rgba(255, 68, 68, 0.4);
-        z-index: 10000;
-        animation: slideDown 0.3s ease;
-    `;
-    
-    document.body.appendChild(errorDiv);
-    
-    // 3秒後自動移除
-    setTimeout(() => {
-        errorDiv.style.animation = 'slideUp 0.3s ease';
-        setTimeout(() => {
-            if (errorDiv.parentNode) {
-                errorDiv.parentNode.removeChild(errorDiv);
-            }
-        }, 300);
-    }, 3000);
-}
-
-// 添加錯誤訊息動畫樣式
-if (!document.querySelector('#errorStyles')) {
-    const style = document.createElement('style');
-    style.id = 'errorStyles';
-    style.textContent = `
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-        }
-        @keyframes slideUp {
-            from {
-                opacity: 1;
-                transform: translateX(-50%) translateY(0);
-            }
-            to {
-                opacity: 0;
-                transform: translateX(-50%) translateY(-20px);
-            }
-        }
-    `;
-    document.head.appendChild(style);
-}
-
-// 顯示成功頁面
-function showSuccessPage() {
-    // 隱藏所有頁面
-    document.querySelectorAll('.page').forEach(page => {
-        page.classList.remove('active');
+    // 收集飲食習慣
+    const dietCheckboxes = document.querySelectorAll('input[name="diet"]:checked');
+    dietCheckboxes.forEach(checkbox => {
+        formData.lifestyle.diet.push(checkbox.value);
     });
     
-    // 顯示成功頁面
-    const successPage = document.getElementById('successPage');
-    if (successPage) {
-        successPage.classList.add('active');
-    }
+    // 收集交通習慣
+    const transportCheckboxes = document.querySelectorAll('input[name="transport"]:checked');
+    transportCheckboxes.forEach(checkbox => {
+        formData.lifestyle.transport.push(checkbox.value);
+    });
     
-    // 更新進度條為100%
-    const progressFill = document.getElementById('progressFill');
-    if (progressFill) {
-        progressFill.style.width = '100%';
+    // 收集生活興趣
+    const interestCheckboxes = document.querySelectorAll('input[name="interest"]:checked');
+    interestCheckboxes.forEach(checkbox => {
+        formData.lifestyle.interest.push(checkbox.value);
+    });
+    
+    // 顯示提交的資料
+    console.log('問卷資料：', formData);
+    
+    // 顯示載入狀態
+    const submitButton = document.querySelector('.btn-submit');
+    const originalButtonText = submitButton.textContent;
+    submitButton.disabled = true;
+    submitButton.textContent = '提交中...';
+    
+    // 發送資料到 Google Apps Script
+    if (GOOGLE_SCRIPT_URL !== 'YOUR_GOOGLE_SCRIPT_URL_HERE') {
+        // 使用隱藏 iframe 方式提交（最可靠的方法）
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.name = 'hidden_iframe';
+        document.body.appendChild(iframe);
+        
+        // 建立表單
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = GOOGLE_SCRIPT_URL;
+        form.target = 'hidden_iframe';
+        
+        // 加入資料欄位
+        const dataInput = document.createElement('input');
+        dataInput.type = 'hidden';
+        dataInput.name = 'data';
+        dataInput.value = JSON.stringify(formData);
+        form.appendChild(dataInput);
+        
+        // 監聽 iframe 載入完成
+        iframe.onload = function() {
+            console.log('表單已提交');
+            // 檢查 Google 試算表確認資料是否寫入
+            // 由於無法直接讀取回應，我們假設成功
+            setTimeout(() => {
+                currentPage = 3;
+                showPage(3);
+                updateProgress();
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+                
+                // 清理 iframe 和表單
+                document.body.removeChild(iframe);
+            }, 1000);
+        };
+        
+        // 提交表單
+        document.body.appendChild(form);
+        form.submit();
+        
+        // 如果 3 秒後 iframe 還沒載入，也顯示成功（避免卡住）
+        setTimeout(() => {
+            if (currentPage !== 3) {
+                console.log('表單提交完成（超時處理）');
+                currentPage = 3;
+                showPage(3);
+                updateProgress();
+                submitButton.disabled = false;
+                submitButton.textContent = originalButtonText;
+                if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                }
+            }
+        }, 3000);
+        
+    } else {
+        // 如果還沒有設定 Google Script URL
+        console.warn('請先設定 GOOGLE_SCRIPT_URL');
+        alert('請先設定 Google Script URL（參考 GOOGLE_SHEETS_SETUP.md）');
+        submitButton.disabled = false;
+        submitButton.textContent = originalButtonText;
     }
+});
+
+// 重置表單
+function resetForm() {
+    // 重置所有表單
+    document.getElementById('basicInfoForm').reset();
+    document.getElementById('lifestyleForm').reset();
+    
+    // 重置到第一頁
+    currentPage = 1;
+    showPage(1);
+    updateProgress();
 }
 
-// 使用Google Forms的方式（替代方案）
-// 如果Google Apps Script無法使用，可以使用Google Forms
-function submitToGoogleForms(formData) {
-    // 這是使用Google Forms的替代方案
-    // 需要先建立Google Form並獲取表單ID
-    const formId = 'YOUR_GOOGLE_FORM_ID';
-    
-    // 注意：Google Forms需要特殊的提交方式
-    // 建議使用Google Apps Script Web App
-}
+// 初始化
+updateProgress();
 
