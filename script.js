@@ -1,5 +1,5 @@
 // Google Apps Script Web App URL - 請替換成您的實際URL
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBAq2IBDt6Uf0SlnKwOq1W1zUvyg12Vflj4Ww1xiyXWJ_zKHeMC464j6MJ3Kmndq18/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwZ2-KEnDTWZh3kcvZbR3hfmkC6MAJLoQyrOdB8xtXr3OdoeF8RzG2f08Z8awK2dWVv/exec';
 
 // 設定選項
 const CONFIG = {
@@ -317,4 +317,5 @@ function submitToGoogleForms(formData) {
     // 注意：Google Forms需要特殊的提交方式
     // 建議使用Google Apps Script Web App
 }
+
 
