@@ -3,7 +3,7 @@ const totalPages = 2;
 
 // ⚠️ 重要：請將下面的網址替換成您在 Google Apps Script 部署後取得的網頁應用程式網址
 // 取得方式：Google Apps Script → 部署 → 新增部署作業 → 選擇網頁應用程式 → 複製網址
-const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyn33WXDvtEkkcurU2QeQ_VsKb0xcjICGIYDOtPjnfcc_86FuPuUWWyTLNePAEYK_zq/exec';
+const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzZppIWk_ebtrg7mdvKyxoXfP-LxQlDwf4ju-ovpdSIUrb6dny3neWHUqFb65d7tBTUXA/exec';
 
 // 初始化進度條
 function updateProgress() {
